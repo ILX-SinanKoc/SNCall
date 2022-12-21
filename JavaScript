@@ -1,0 +1,378 @@
+document.addEventListener("DOMContentLoaded", function(event) {
+
+        //Add html elements to the page
+        function BodyParts(type, inner, id, cname, append) {
+            let btn11 = document.createElement(type);
+            btn11.innerHTML = inner;
+            btn11.id = id;
+            btn11.className = cname;
+            if (append == null) {
+                document.body.appendChild(btn11);
+
+            }
+                else {
+                const element = document.getElementById(append);
+                element.appendChild(btn11);
+            }
+
+
+        }
+
+        
+
+        BodyParts("button","Open Modal", "myBtn");
+
+        document.getElementById("myBtn").style.bottom = "40px";
+        document.getElementById("myBtn").style.position = "relative";
+
+        BodyParts("div","", "myModal", "modal");
+        BodyParts("div","", "modal-content", "modal-content", "myModal");
+
+        BodyParts("modal-header","", "modal-header", "modal-header", "modal-content")
+
+        BodyParts("span","&times;", "close", "close", "modal-header")
+        //BodyParts("h2","Modal Header", "", "", "modal-header")
+        BodyParts("div","", "modal-body", "modal-body", "modal-content")
+
+        //BodyParts("p","Some text in the Modal Body", "", "", "modal-body")
+
+        BodyParts("p","", "APIText", "", "modal-body")
+        BodyParts("p","", "TSRText", "", "modal-body")
+
+        //BodyParts("div","", "modal-footer", "modal-footer", "modal-content")
+
+        //BodyParts("h3","Modal Footer", "", "", "modal-footer")
+
+        BodyParts("button","API Button", "APIBut", "", "modal-body")
+
+        //console.log("API Button added");
+
+
+        document.getElementById("APIBut").addEventListener("click", myFunction);
+
+        BodyParts("button","Recent TSR", "TSRBut", "", "modal-body")
+
+        //console.log("TSR Button added");
+
+
+        document.getElementById("TSRBut").addEventListener("click", myFunction2);
+        document.getElementById("TSRBut").style.display = "none";
+
+
+// Get the modal
+        var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+// When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+// When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+    })
+
+
+
+
+var dict2 = //Replace This Comment with your accounts JSON
+
+var toCheck = document.getElementById("sys_display.original.sn_customerservice_case.account").value;
+
+var acc = ""
+
+for (i = 0; i <dict2["records"].length; i++){
+if (dict2["records"][i].name == toCheck){
+    //console.log(dict2["records"][i].u_salesforce_account_number);
+    acc = dict2["records"][i].u_salesforce_account_number;
+    
+}
+}
+
+
+
+    function myFunction() {
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "ApiKey <Replace with your API Key>");
+
+        var urlencoded = new URLSearchParams();
+
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+        fetch("https://clients.intelex.com/Login/Champagne/api/v2/object/CusandProspects_InstallationsObject?$filter=SalesIDCaseSafe eq \'" + acc + "\'", requestOptions)
+            .then(response => response.json())
+            .then(result => CreateTableFromJSON(result["value"]))
+            .catch(error => console.log('error', error));
+        //console.log("API Called")
+
+    }
+
+    function CreateTableFromJSON(apidata) {
+
+        // CREATE DYNAMIC TABLE.
+        var table = document.createElement("table");
+
+        // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+
+        var tr = table.insertRow(-1);                   // TABLE ROW.
+
+        var th = document.createElement("th");
+        th.innerHTML = "Site Address";
+        tr.appendChild(th);
+        
+        var thempty = document.createElement("th");
+        thempty.innerHTML = "  ";
+        tr.appendChild(thempty);
+
+        var th1 = document.createElement("th");
+        th1.innerHTML = "Version";
+        tr.appendChild(th1);
+        
+        
+        
+        var thempty2 = document.createElement("th");
+        thempty2.innerHTML = "  ";
+        tr.appendChild(thempty2);
+        
+        var th3 = document.createElement("th");
+        th3.innerHTML = "Version Notes";
+        tr.appendChild(th3);
+        
+        var thempty1 = document.createElement("th");
+        thempty1.innerHTML = "  ";
+        tr.appendChild(thempty1);
+
+        var th2 = document.createElement("th");
+        th2.innerHTML = "Users";
+        tr.appendChild(th2);
+
+
+
+
+
+
+
+        // ADD JSON DATA TO THE TABLE AS ROWS.
+        for (var i = 0; i < apidata.length; i++) {
+            //console.log(i)
+            //console.log(apidata[i])
+            //console.log(apidata[i].InstallationURL)
+
+            tr = table.insertRow(-1);
+            var tabCell = tr.insertCell(-1);
+            tabCell.innerHTML = apidata[i].InstallationURL;
+            
+            var tabCelle = tr.insertCell(-1);
+            tabCelle.innerHTML = "";
+            
+            var tabCell1 = tr.insertCell(-1);
+            tabCell1.innerHTML = apidata[i].CurrentVersion;
+            
+            
+            
+            var tabCelle2 = tr.insertCell(-1);
+            tabCelle2.innerHTML = "";
+            
+            var tabCell3 = tr.insertCell(-1);
+            
+            var myHeaders = new Headers();
+        	myHeaders.append("Authorization", "ApiKey <Replace with your API Key>");
+
+        	var urlencoded = new URLSearchParams();
+
+        	var requestOptions = {
+            	method: 'GET',
+            	headers: myHeaders,
+            	redirect: 'follow'
+        	};
+
+        	fetch("https://clients.intelex.com/Login/Champagne/api/v2/object/ProductRelease_ReleaseObject?$filter=ReleaseName eq 'Release " + apidata[i].CurrentVersion +"'", requestOptions)
+            	.then(response => response.json())
+            	.then(result => tabCell3.innerHTML = result["value"][0]["AdditionalNotes"].slice(0,70))
+            	.catch(error => console.log('error', error));
+        		console.log("Release API Call" + [i])
+            
+            
+            var tabCelle1 = tr.insertCell(-1);
+            tabCelle1.innerHTML = "";
+            
+            var tabCell2 = tr.insertCell(-1);
+            tabCell2.innerHTML = apidata[i].NumbofEmployees;
+
+
+
+
+
+        }
+
+        // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+        var divContainer = document.getElementById("APIText");
+        divContainer.innerHTML = "";
+        divContainer.appendChild(table);
+
+        document.getElementById("APIBut").style.display = "none";
+
+        document.getElementById("TSRBut").style.display = "inline-block";
+
+
+
+
+
+
+    }
+
+
+    function CreateTableforTSR(apidata) {
+
+        // CREATE DYNAMIC TABLE.
+        var table = document.createElement("table");
+        table.id = "mytable"
+
+        // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+
+        var tr = table.insertRow(-1);                   // TABLE ROW.
+
+        var th = document.createElement("th");
+        th.innerHTML = "No";
+        tr.appendChild(th);
+        
+        var thempty = document.createElement("th");
+        thempty.innerHTML = "  ";
+        tr.appendChild(thempty);
+
+        var th1 = document.createElement("th");
+        th1.innerHTML = "Description";
+        tr.appendChild(th1);
+        
+        var thempty1 = document.createElement("th");
+        thempty1.innerHTML = "  ";
+        tr.appendChild(thempty1);
+
+        var th2 = document.createElement("th");
+        th2.innerHTML = "Severity 1";
+        tr.appendChild(th2);
+        
+        var thempty2 = document.createElement("th");
+        thempty2.innerHTML = "  ";
+        tr.appendChild(thempty2);
+
+        var th3 = document.createElement("th");
+        th3.innerHTML = "Date Created";
+        tr.appendChild(th3);
+
+
+
+
+
+
+
+        // ADD JSON DATA TO THE TABLE AS ROWS.
+        for (var i = 0; i < apidata.length; i++) {
+
+
+            tr = table.insertRow(-1);
+            var tabCell = tr.insertCell(-1);
+            tabCell.innerHTML = apidata[i].RecordNumber;
+            
+            var tabCelle = tr.insertCell(-1);
+            tabCelle.innerHTML = "";
+            
+            
+            var tabCell1 = tr.insertCell(-1);
+            tabCell1.innerHTML = apidata[i].RequDescription;
+            
+            var tabCelle1 = tr.insertCell(-1);
+            tabCelle1.innerHTML = "";
+            
+            var tabCell2 = tr.insertCell(-1);
+            tabCell2.innerHTML = apidata[i].Severity1;
+            
+            var tabCelle3 = tr.insertCell(-1);
+            tabCelle3.innerHTML = "";
+            
+            
+            var tabCell3 = tr.insertCell(-1);
+            var myDate = new Date(apidata[i].DateCreated);
+            var output = myDate.getDate() + "\\" +  (myDate.getMonth()+1) + "\\" + myDate.getFullYear();
+			tabCell3.innerHTML = output;
+
+
+
+
+
+
+
+
+
+        }
+
+        // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+        var divContainer = document.getElementById("TSRText");
+        divContainer.innerHTML = "";
+        divContainer.appendChild(table);
+
+        document.getElementById("TSRBut").style.display = "none";
+
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+    function myFunction2() {
+
+
+
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "ApiKey <Replace with your API Key>");
+
+        var urlencoded = new URLSearchParams();
+
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+        fetch("https://clients.intelex.com/Login/Champagne/api/v2/object/Requests_TServiceRequestObject?$orderby=DateCreated desc&$filter=Customer/SalesforceID eq \'" + acc + "\'" +"&$top=5", requestOptions)
+            .then(response => response.json())
+            .then(result => CreateTableforTSR(result["value"]))
+            .catch(error => console.log('error', error));
+        //console.log("API Called")
+
+    }
+
+
+
+
+
+
+
